@@ -18,10 +18,13 @@ class Python3Shell(CoreCli):
         @param run_opts  Same options as CoreCli run method.
         """
         if not 'marker' in run_opts:
-            run_opts['marker'] = '>>>'
+            run_opts['marker'] = '>>>|...'
 
         if not 'error_marker' in run_opts:
             run_opts['error_marker'] = 'Error'
+
+        if not 'strip_cmds' in run_opts:
+            run_opts['strip_cmds'] = False
 
         return super(Python3Shell, self).run(cmds, **run_opts)
 
@@ -71,9 +74,7 @@ class SshPython3Shell(Python3Shell):
     def logout(self):
         """ Logout from CLI interface.
         """
-        # Send exit until login is reached.
-        self.connection.terminal.sendline()
-        self.connection.terminal.expect('>>>', timeout=5)
-        self.connection.terminal.sendline('exit()')
+        # Ctrl+d to exist python3 shell and exit to end remote session shell
+        self.connection.terminal.sendcontrol('d')
         self.connection.terminal.expect(self.sh_markers, timeout=5)
         self.connection.terminal.sendline('exit')
